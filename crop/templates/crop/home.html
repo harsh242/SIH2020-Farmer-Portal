@@ -1,0 +1,99 @@
+{% extends 'crop/base.html' %}
+
+
+<!--{% block recent_posts %}
+
+{% for post in recent_posts %}
+<ul>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h5 style="margin: 0;"><a href="{% url 'crop:post-detail' post.id %}">{{ post.name }}</a></h5>
+              <span>{{ post.date_posted }}</span>
+            </div>
+
+          </li>
+        
+      </ul>
+      {% endfor %}
+
+{% endblock recent_posts %}
+
+{% block archieves %}
+{% for post in recent_posts %}
+<ul>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-summary" style="margin: 0;">
+            
+
+              <h5 style="margin: 0;"><a href="{% url 'crop:post-detail' post.id %}">{{ post.title }}</a></h5>
+              <span>{{ post.date_posted }}</span>
+            </div>
+
+          </li>
+        
+      </ul>
+      {% endfor %}
+
+{% endblock archieves %}
+-->
+
+
+{% block content %}
+  
+  <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <h2 style="font-size:40px; color: black; "><a style="color: black;" class="article-title" href="">RECENT CROPS POSTED</a></h2>
+          </div></div></article>
+  
+
+
+  {% for post in posts %}
+    <article class="media content-section">
+      <div class="media-body">
+        <h2 style="font-size:20px; color: black; "><a style="color: black;" class="article-title" href="{% url 'crop:post-detail' post.id %}">{{ post.name }}</a></h2>
+        {% if post.image %}
+        <img src="{ post.image.url }">
+        {% endif %}
+        <p>Quantity: {{ post.quantity }} {{ post.unit.name }}</p>
+        <p>Price: Rs.{{ post.price }}</p>
+        <p class="article-content content-markdown">{{ post.content }}</p>
+        <div class="article-metadata">
+          <a class="mr-2" style="color: black;" href="{% url 'crop:user-posts' post.farmer.username %}">{{ post.farmer }}</a> &nbsp;&nbsp;&nbsp;
+          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+        </div>
+      </div>
+    </article><hr>
+  {% endfor %}
+
+{% if posts.has_other_pages %}
+  <ul class="pagination">
+    {% if posts.has_previous %}
+      <li><a href="?page={{ posts.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in posts.paginator.page_range %}
+      {% if posts.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a style="color: black;" href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+      <li><a href="?page={{ posts.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+{% endblock %}
+

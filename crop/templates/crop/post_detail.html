@@ -1,0 +1,89 @@
+{% extends "crop/base.html" %}
+
+{% block content %}
+  <article class="media content-section">
+    <img class="rounded-circle article-img" style="width: 75px; height: 75px;" src="{{ object.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'crop:user-posts' object.farmer.username %}">{{ object.author }}</a>
+        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+        {% if object.author == user %}
+          <div>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'crop:post-update' object.id %}">Update</a>
+            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'crop:post-delete' object.id %}">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+      <h2 style="font-size:30px" class="article-title">{{ object.title }}</h2>
+      <p class="article-content content-markdown">{{ object.content }}</p>
+            <p class="article-content content-markdown">{{ object.content }}</p>
+     <button type="button" class="btn btn-success">
+      {% if highest and bidder %}
+ Highest Bid : £ {{ highest }} by {{ bidder }}</button>
+{% endif %}
+      {% if user.is_authenticated and now < object.date_valid %}
+ <br><br><br>     <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <h5><legend class="border-bottom mb-4">BID</legend></h5>
+                {{ form}}
+                </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Bid</button>
+
+      {% else %}
+      {% if bidder == user.username and object.owner != user %}
+      <div><br>
+<form action="{% url 'core:buy' object.id %}">
+  {% csrf_token %}
+        <button class="btn btn-outline-dark" type="submit">Buy</button>
+      </form></div>{% else %}
+      <p>You must be logged in to bid or the bid has expired.</p>
+      {% endif %}
+      {% endif %}
+</div>
+
+    </div>
+
+  </article>
+    {% if user.is_authenticated %}
+      <h3>Add comment</h3>
+      <form action="." method="POST">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button class="btn btn-outline-info" type="submit">Add comment</button>
+      </form>
+    {% endif %}
+<hr>
+    {% for comment in comments %}
+    <article class="media content-section">
+    <div class="article-metadata">
+        <a class="mr-2" href="{% url 'crop:user-posts' object.author.username %}">{{ comment.author }}</a>
+        <small class="text-muted">{{ comment.created|date:"F d, Y" }}</small>
+      <p class="article-content">{{ comment.body | linebreaks }}</p>
+</div></article>
+      {% for reply in comment.replies.all %}
+      <article class="media content-section" style="margin-left: 20px;">
+    <div class="article-metadata">
+        <a class="mr-2" href="{% url 'crop:user-posts' object.author.username %}">{{ reply.author }}</a>
+        <small class="text-muted">{{ reply.created|date:"F d, Y" }}</small>
+      <p class="article-content">{{ reply.body | linebreaks }}</p>
+</div></article>{% endfor %}
+
+      {% if user.is_authenticated %}
+      <div style="margin-left: 20px;">
+      <h3>Reply</h3>
+      
+      <form action="." method="POST">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <input type="hidden" name="Parent_id", value="{{ comment.id }}">
+        <button class="btn btn-outline-info" type="submit">Reply</button>
+      </form>
+    </div>
+      {% endif %}
+<hr>
+    {% empty %}
+    <p>There are no comments...</p>
+    {% endfor %}
+{% endblock content %}
